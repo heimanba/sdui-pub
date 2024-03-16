@@ -27,7 +27,7 @@ services:
     environment:
       - http_proxy=http://proxy:8118
       - https_proxy=http://proxy:8118
-      - no_proxy=localhost,127.0.0.1
+      - no_proxy=localhost,127.0.0.1,0.0.0.0,app,webui,proxy,::1
     deploy:
       restart_policy:
         condition: on-failure
@@ -53,7 +53,7 @@ services:
       - OLLAMA_BASE_URL=http://app:11434
       - http_proxy=http://proxy:8118
       - https_proxy=http://proxy:8118
-      - no_proxy=localhost,127.0.0.1,app
+      - no_proxy=localhost,127.0.0.1,app,0.0.0.0
     volumes:
       - ./ollama/webui:/app/backend/data:z
 
