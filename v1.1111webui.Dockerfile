@@ -52,7 +52,6 @@ RUN git clone --depth 1 https://github.com/Mikubill/sd-webui-controlnet.git exte
 #RUN git clone --depth 1 https://github.com/pharmapsychotic/clip-interrogator-ext.git extensions/clip-interrogator-ext
 #RUN git clone --depth 1 https://github.com/zero01101/openOutpaint-webUI-extension extensions/openOutpaint-webUI-extension
 #RUN git clone --depth 1 https://github.com/huchenlei/sd-webui-openpose-editor extensions/sd-webui-openpose-editor
-#RUN git clone --depth 1 https://github.com/Bing-su/adetailer extensions/adetailer
 
 # Install dependencies of extensions
 RUN ./webui.sh --exit --skip-torch-cuda-test
