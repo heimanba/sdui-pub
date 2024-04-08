@@ -29,7 +29,9 @@ services:
       - https_proxy=http://proxy:8118
       - no_proxy=localhost,127.0.0.1
     volumes:
+      # static asset
       - ./notification.mp3:/home/user/app/notification.mp3
+      # models
       - ./models/checkpoints:/home/user/app/models/Stable-diffusion:z
       - ./models/vae:/home/user/app/models/VAE:z
       - ./models/vae_approx:/home/user/app/models/VAE-approx:z
@@ -41,10 +43,16 @@ services:
       - ./models/ESRGAN:/home/user/app/models/ESRGAN:z
       - ./models/upscale_models:/home/user/app/models/RealESRGAN:z
       - ./models/embeddings:/home/user/app/embeddings:z
+      # config
       - ./models/configs:/home/user/app/configs:z
+      # control net
       - ./models/controlnet:/home/user/app/extensions/sd-webui-controlnet/models:z
+      - ./models/controlnet-annotator:/home/user/app/extensions/sd-webui-controlnet/annotator:z
+      # output
       - ./data:/home/user/app/outputs:z
+      # clip
       - ./openai:/home/user/app/openai:z
+      # styles
       - ./styles.csv:/home/user/app/styles.csv:rw
     deploy:
       resources:
