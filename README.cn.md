@@ -10,8 +10,9 @@
 
 - [Docker](https://www.docker.com/)
 - [NVIDIA CUDA](https://developer.nvidia.com/cuda-downloads)
-- [WSL](https://learn.microsoft.com/en-us/windows/wsl/basic-commands)
-- [Download Git](https://git-scm.com/downloads)
+- [WSL](https://learn.microsoft.com/en-us/windows/wsl/basic-commands): 在 Windows 上需要这个
+    - 注意: 在 WSL 中运行 Docker 会导致磁盘 I/O 性能严重下降
+- [Git](https://git-scm.com/downloads)
 
 # 我的装备
 
@@ -29,27 +30,6 @@
 
 # 输出目录, 所有输出的内容都会在这个文件夹里面
 mkdir data
-# `Fooocus` 的模型和配置文件夹
-mkdir fooocus
-# `GPT-SoVITS` 的模型和配置文件夹
-mkdir gpt-sovits
-# `Ollama` 的模型和配置文件夹
-mkdir ollama
-# `OpenAI` `CLIP` 项目
-mkdir openai
-
-# 模型目录
-mkdir -p models/checkpoints
-# `LoRA` 目录
-mkdir -p models/loras
-# `embeddings` / `Textual Inversion` 目录
-mkdir -p models/embeddings
-# `VAE` 目录
-mkdir -p models/vae
-mkdir -p models/vae_approx
-
-# `Qwen` 模型目录
-mkdir -p models/qwen
 ```
 
 ## 构建一个 [tinyproxy](https://github.com/tinyproxy/tinyproxy) 镜像
@@ -84,6 +64,18 @@ docker rm -f tinyproxy
 这是一个很好用、很出名的 SD UI 工程
 
 ```shell
+# 模型目录
+mkdir -p models/checkpoints
+# `LoRA` 目录
+mkdir -p models/loras
+# `embeddings` / `Textual Inversion` 目录
+mkdir -p models/embeddings
+# `VAE` 目录
+mkdir -p models/vae
+mkdir -p models/vae_approx
+# `OpenAI` `CLIP` 项目
+mkdir -p openai
+
 # 构建镜像
 docker build -t 1111webui:v1 -f v1.1111webui.Dockerfile .
 
@@ -108,62 +100,22 @@ docker build -t comfyui:v1 -f v1.comfyui.Dockerfile .
 docker compose -f compose.comfyui.yaml up -d
 ```
 
-## [Fooocus](https://github.com/lllyasviel/Fooocus)
-
-这是一个极简的 SDUI 项目, 要比 [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) 简单很多;
-但是, 与此同时, 也失去了很多自定义的功能
-
-```shell
-docker build -t fooocus:v1 -f v1.fooocus.Dockerfile .
-
-# 获取最新的数据
-# 方法 1
-#cd ..
-#git clone --depth 1 https://github.com/lllyasviel/Fooocus.git
-#cp -R Fooocus/models sdui/fooocus/
-#cd sdui
-# 方法 2
-export TMP_FOOOCUS_CONTAINER="$(docker create fooocus:v1)"
-docker cp "$TMP_FOOOCUS_CONTAINER:/home/user/app/models" fooocus/
-docker rm -f "$TMP_FOOOCUS_CONTAINER"
-
-
-# --preset anime
-#export FOOOCUS_PRESET="anime"
-# --preset realistic
-#export FOOOCUS_PRESET="realistic"
-# --preset lcm
-#export FOOOCUS_PRESET="lcm"
-# --preset sai
-#export FOOOCUS_PRESET="sai"
-
-# --preset default
-export FOOOCUS_PRESET="default"
-docker compose -f compose.fooocus.yaml up -d
-```
-
 ## [Ollama](https://github.com/ollama/ollama)
 
 这不是一个 SD 的工程, 但是可以用来跑大语言模型, 正好 SDUI 的基础设施可以直接搭建构建这个镜像.
 
 支持的模型:
+
+- [qwen](https://github.com/QwenLM/Qwen)
 - [Gemma](https://www.kaggle.com/models/google/gemma)
 - [Llama 2](https://arxiv.org/abs/2307.09288)
 - [llama2-uncensored](https://erichartford.com/uncensored-models)
-- [qwen](https://github.com/QwenLM/Qwen)
 
 ```shell
+# `Ollama` 的模型和配置文件夹
+mkdir ollama
+
 docker compose -f compose.ollama.yaml up -d
-```
-
-## [Qwen](https://github.com/QwenLM/Qwen)
-
-阿里巴巴的 `通义千问` 官方 demo
-
-```shell
-#git clone --depth 1 https://huggingface.co/Qwen/Qwen-7B-Chat ./models/qwen/7b-chat
-git clone --depth 1 https://huggingface.co/Qwen/Qwen-1_8B-Chat ./models/qwen/1.8b-chat
-docker compose -f compose.qwen.yaml up -d
 ```
 
 ## [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)
@@ -171,6 +123,9 @@ docker compose -f compose.qwen.yaml up -d
 一分钟声音克隆
 
 ```shell
+# `GPT-SoVITS` 的模型和配置文件夹
+mkdir gpt-sovits
+
 git clone --depth 1 https://huggingface.co/lj1995/GPT-SoVITS ./gpt-sovits/SoVITS_weights
 docker compose -f compose.gpt-sovits.yaml up -d
 ```
@@ -187,13 +142,11 @@ docker compose -f compose.easyocr.yaml up -d
 - 如何在构建镜像过程中使用上游代理服务?
     - 参考构建 tinyproxy 的过程, 在构建镜像时, 传入 `--build-arg` 参数即可
     - ```shell
-      export proxy_host=proxy.lan:1080
-      docker build \
-             --build-arg "http_proxy=http://$proxy_host" \
-             --build-arg "https_proxy=http://$proxy_host" \
-             --build-arg no_proxy=localhost,127.0.0.1 \
-             --progress=plain \
-             -t image:tag -f Dockerfile .
+        export http_proxy=http://proxy.lan:1080
+        docker build \
+               --build-arg "http_proxy=$http_proxy" --build-arg "https_proxy=$http_proxy"--build-arg no_proxy=localhost,127.0.0.1 \
+               --progress=plain \
+               -t image:tag -f Dockerfile .
       ```
 - 英伟达 CUDA 驱动安装失败
     - 可能因为我的显卡比较老了, 安装 CUDA 的时候提示 nsight compute 什么什么的安装失败了.
@@ -228,8 +181,6 @@ docker compose -f compose.easyocr.yaml up -d
 - [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
 - [ComfyUI Dockerfile](https://huggingface.co/spaces/SpacesExamples/ComfyUI/tree/main)
 - [ComfyUI](https://github.com/comfyanonymous/ComfyUI)
-- [MAT](https://huggingface.co/spaces/Rothfeld/stable-diffusion-mat-outpainting-primer/tree/main)
-- [Fooocus](https://github.com/lllyasviel/Fooocus)
 
 - [Ollama](https://github.com/ollama/ollama)
 - [open-webui](https://github.com/open-webui/open-webui)

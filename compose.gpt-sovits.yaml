@@ -7,6 +7,8 @@ services:
       - internal
     volumes:
       - ./tinyproxy.conf:/etc/tinyproxy/tinyproxy.conf
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   http:
     image: "caddy"
     networks:
@@ -22,6 +24,8 @@ services:
       - "9874:9874"
     volumes:
       - ./caddy.gpt-sovits.Caddyfile:/etc/caddy/Caddyfile
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   app:
     image: "breakstring/gpt-sovits:latest"
     networks:

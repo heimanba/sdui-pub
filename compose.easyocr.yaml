@@ -7,6 +7,8 @@ services:
       - internal
     volumes:
       - ./tinyproxy.conf:/etc/tinyproxy/tinyproxy.conf
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   http:
     image: "caddy"
     restart: unless-stopped
@@ -19,6 +21,8 @@ services:
       - 7863:7860
     volumes:
       - ./caddy.easyocr.Caddyfile:/etc/caddy/Caddyfile
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   app:
     image: "easyocr:v1"
     restart: unless-stopped

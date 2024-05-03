@@ -10,8 +10,9 @@ StableDiffusion UI in Docker
 
 - [Docker](https://www.docker.com/)
 - [NVIDIA CUDA](https://developer.nvidia.com/cuda-downloads)
-- [WSL](https://learn.microsoft.com/en-us/windows/wsl/basic-commands)
-- [Download Git](https://git-scm.com/downloads)
+- [WSL](https://learn.microsoft.com/en-us/windows/wsl/basic-commands): on Windows
+    - Warning: There will be significant performance loss of disk I/O when running Docker in WSL.
+- [Git](https://git-scm.com/downloads)
 
 # My Gears
 
@@ -26,30 +27,7 @@ StableDiffusion UI in Docker
 ```shell
 # Run this command before everything if you are using Windows
 #git config --global core.autocrlf false
-
-# Output folder
 mkdir data
-# `Fooocus` models and configs
-mkdir fooocus
-# `GPT-SoVITS` models and configs
-mkdir gpt-sovits
-# `Ollama` models and configs
-mkdir ollama
-# `OpenAI` `CLIP`
-mkdir openai
-
-# `Model` / `Checkpoint` folder
-mkdir -p models/checkpoints
-# `LoRA` folder
-mkdir -p models/loras
-# `embeddings` / `Textual Inversion` folder
-mkdir -p models/embeddings
-# `VAE` folder
-mkdir -p models/vae
-mkdir -p models/vae_approx
-
-# `Qwen` checkpoints
-mkdir -p models/qwen
 ```
 
 ## [tinyproxy](https://github.com/tinyproxy/tinyproxy)
@@ -65,6 +43,13 @@ docker build -t tinyproxy:latest -f v1.tinyproxy.Dockerfile .
 ## [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
 
 ```shell
+mkdir -p models/checkpoints
+mkdir -p models/loras
+mkdir -p models/embeddings
+mkdir -p models/vae
+mkdir -p models/vae_approx
+mkdir -p openai
+
 docker build -t 1111webui:v1 -f v1.1111webui.Dockerfile .
 
 # CLIP models
@@ -84,59 +69,24 @@ docker build -t comfyui:v1 -f v1.comfyui.Dockerfile .
 docker compose -f compose.comfyui.yaml up -d
 ```
 
-## [Fooocus](https://github.com/lllyasviel/Fooocus)
-
-```shell
-docker build -t fooocus:v1 -f v1.fooocus.Dockerfile .
-
-# Get required files
-# Method 1
-#cd ..
-#git clone --depth 1 https://github.com/lllyasviel/Fooocus.git
-#cp -R Fooocus/models sdui/fooocus/
-#cd sdui
-# Method 2
-export TMP_FOOOCUS_CONTAINER="$(docker create fooocus:v1)"
-docker cp "$TMP_FOOOCUS_CONTAINER:/home/user/app/models" fooocus/
-docker rm -f "$TMP_FOOOCUS_CONTAINER"
-
-# --preset anime
-#export FOOOCUS_PRESET="anime"
-# --preset realistic
-#export FOOOCUS_PRESET="realistic"
-# --preset lcm
-#export FOOOCUS_PRESET="lcm"
-# --preset sai
-#export FOOOCUS_PRESET="sai"
-
-# --preset default
-export FOOOCUS_PRESET="default"
-docker compose -f compose.fooocus.yaml up -d
-```
-
 ## [Ollama](https://github.com/ollama/ollama)
 
 Supported models:
+
+- [qwen](https://github.com/QwenLM/Qwen)
 - [Gemma](https://www.kaggle.com/models/google/gemma)
 - [Llama 2](https://arxiv.org/abs/2307.09288)
 - [llama2-uncensored](https://erichartford.com/uncensored-models)
-- [qwen](https://github.com/QwenLM/Qwen)
 
 ```shell
+mkdir ollama
 docker compose -f compose.ollama.yaml up -d
-```
-
-## [Qwen](https://github.com/QwenLM/Qwen)
-
-```shell
-#git clone --depth 1 https://huggingface.co/Qwen/Qwen-7B-Chat ./models/qwen/7b-chat
-git clone --depth 1 https://huggingface.co/Qwen/Qwen-1_8B-Chat ./models/qwen/1.8b-chat
-docker compose -f compose.qwen.yaml up -d
 ```
 
 ## [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS)
 
 ```shell
+mkdir gpt-sovits
 git clone --depth 1 https://huggingface.co/lj1995/GPT-SoVITS ./gpt-sovits/SoVITS_weights
 docker compose -f compose.gpt-sovits.yaml up -d
 ```
@@ -150,13 +100,19 @@ docker compose -f compose.easyocr.yaml up -d
 
 # FAQ
 
+- How access host network in docker container?
+  - macOS and Windows: `host.docker.internal`.
+  - Linux: add 
+    ```yaml
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ```
+    into a service in compose yaml file.
 - How to use proxy for image building progress?
     - ```shell
-        export proxy_host=proxy.lan:1080
+        export http_proxy=http://proxy.lan:1080
         docker build \
-               --build-arg "http_proxy=http://$proxy_host" \
-               --build-arg "https_proxy=http://$proxy_host" \
-               --build-arg no_proxy=localhost,127.0.0.1 \
+               --build-arg "http_proxy=$http_proxy" --build-arg "https_proxy=$http_proxy"--build-arg no_proxy=localhost,127.0.0.1 \
                --progress=plain \
                -t image:tag -f Dockerfile .
       ```
@@ -184,8 +140,6 @@ docker compose -f compose.easyocr.yaml up -d
 - [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
 - [ComfyUI Dockerfile](https://huggingface.co/spaces/SpacesExamples/ComfyUI/tree/main)
 - [ComfyUI](https://github.com/comfyanonymous/ComfyUI)
-- [MAT](https://huggingface.co/spaces/Rothfeld/stable-diffusion-mat-outpainting-primer/tree/main)
-- [Fooocus](https://github.com/lllyasviel/Fooocus)
 
 - [Ollama](https://github.com/ollama/ollama)
 - [open-webui](https://github.com/open-webui/open-webui)
