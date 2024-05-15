@@ -11,6 +11,8 @@ services:
       - "host.docker.internal:host-gateway"
   http:
     image: "caddy"
+    restart:
+      - unless-stopped
     networks:
       - external
       - internal
@@ -26,6 +28,8 @@ services:
       - "host.docker.internal:host-gateway"
   app:
     image: "ollama/ollama"
+    restart:
+      - unless-stopped
     networks:
       - internal
     environment:
@@ -33,10 +37,6 @@ services:
       - https_proxy=http://proxy:8118
       - no_proxy=localhost,127.0.0.1,0.0.0.0,app,webui,proxy,::1
     deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
       resources:
         reservations:
           devices:
@@ -47,6 +47,8 @@ services:
       - ./ollama/app:/root/.ollama:z
   webui:
     image: "ghcr.io/open-webui/open-webui:main"
+    restart:
+      - unless-stopped
     links:
       - app
     networks:
