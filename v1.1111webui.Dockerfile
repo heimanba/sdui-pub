@@ -38,7 +38,7 @@ ARG PULL_OPENAI_MODELS=""
 # Main project
 RUN git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git . && \
     python3 -m venv venv && \
-    echo "export TORCH_COMMAND=\"pip install xformers --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/$CUDA_VERSION\"" >> "webui-user.sh" \
+    echo "export TORCH_COMMAND=\"pip install xformers --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/$CUDA_VERSION\"" >> "webui-user.sh" && \
     ./webui.sh --exit --skip-torch-cuda-test
 
 # CLIP model
@@ -59,4 +59,4 @@ RUN ./webui.sh --exit --skip-torch-cuda-test
 RUN git config --global --unset http.proxy && \
     git config --global --unset https.proxy
 
-CMD ["./webui.sh", "--api", "--no-download-sd-model", "--enable-insecure-extension-access", "--skip-torch-cuda-test", "--xformers", "--listen", "--port", "7860"]
+CMD ["./webui.sh", "--api", "--no-download-sd-model", "--enable-insecure-extension-access", "--skip-torch-cuda-test", "--medvram", "--opt-split-attention", "--xformers", "--listen", "--port", "7860"]
