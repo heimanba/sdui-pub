@@ -51,7 +51,6 @@ services:
       - ./models/configs:/home/user/app/configs:z
       # control net
       - ./models/controlnet:/home/user/app/extensions/sd-webui-controlnet/models:z
-      - ./models/controlnet-annotator:/home/user/app/extensions/sd-webui-controlnet/annotator:z
       # output
       - ./data:/home/user/app/outputs:z
       # clip
