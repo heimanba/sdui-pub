@@ -365,6 +365,10 @@ javascript = """
 }
 """
 
+server_port = os.getenv("FC_CUSTOM_LISTEN_PORT", 7860)
+if server_port:
+    server_port = int(server_port) 
+    
 gr.Interface(
     inference,
     [
@@ -380,4 +384,4 @@ gr.Interface(
     js=javascript,
     allow_flagging="never",
     submit_btn=gr.Button("Submit", variant="primary", elem_id="SubmitButton"),
-).queue(max_size=20).launch(debug=no_debug)
+).queue(max_size=20).launch(server_name="0.0.0.0", server_port=server_port)

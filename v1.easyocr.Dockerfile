@@ -40,4 +40,8 @@ RUN python -m pip install \
 
 COPY easyocr/app.py .
 
+ENV EASYOCR_THRESHOLD=0.5
+ENV EASYOCR_DEFAULT_LANGS="ch_sim,en"
+ENV FC_CUSTOM_LISTEN_PORT=7860
+
 CMD ["python", "-u", "app.py"]
